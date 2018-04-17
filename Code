@@ -1,0 +1,42 @@
+Function ks_stat(vvec As Variant) As Variant
+    
+    Dim ObsFreq() As Variant
+    Dim ObsDist() As Variant
+    Dim sampleZ() As Variant
+    Dim theoryZ() As Variant
+    Dim AbsDev() As Variant
+    
+    Dim n As Integer
+    Dim mean, StDev, KS, KS_crit As Double
+    
+    n = WorksheetFunction.Count(vvec)
+    mean = WorksheetFunction.Average(vvec)
+    StDev = WorksheetFunction.StDev_S(vvec)
+    KS = 0
+    
+    ReDim ObsFreq(1 To n)
+    ReDim ObsDist(1 To n)
+    ReDim sampleZ(1 To n)
+    ReDim theoryZ(1 To n)
+    ReDim AbsDev(1 To n)
+    
+    For i = 1 To n Step 1
+        ObsFreq(i) = i
+        ObsDist(i) = (ObsFreq(i) - 0.5) / n
+        sampleZ(i) = (vvec(i) - mean) / StDev
+        theoryZ(i) = WorksheetFunction.NormSInv(ObsDist(i))
+        AbsDev(i) = Abs(theoryZ(i) - sampleZ(i))
+        If AbsDev(i) > KS Then
+            KS = AbsDev(i)
+        End If
+    Next i
+    
+    KS_crit = 1.36 / (n ^ 0.5)
+    
+    If KS > KS_crit Then
+        ks_stat = "non-normal"
+    Else
+        ks_stat = "normal"
+    End If
+
+End Function
